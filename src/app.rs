@@ -27,20 +27,117 @@
  */
 
 use yew::prelude::*;
-use web_sys::HtmlBodyElement;
+use web_sys::{Element, Node};
+use gloo::utils::document;
 
-use crate::app::map::execute_load_map;
+use crate::app::{ui::open_side_nav_bar, client::fetch_feature};
+
+use self::{_Props::children, ui::init_all_ui, map::load_map};
 
 mod map;
+mod ui;
+mod client;
+
+#[derive(PartialEq, Properties)]
+struct Props {
+    children: Html
+}
+
+#[function_component]
+fn nav(props: &Props) -> Html {
+    // memoize as this only needs to be executed once
+    let node = {
+        let nav_element: Element = document().create_element("nav").unwrap();
+
+        let divs = html! {
+            { props.children.clone() }
+        };
+
+        if let Html::VRef(div) = divs.clone() {
+            let _ = nav_element.append_child(&div);
+        }
+
+        let node: Node = nav_element.into();
+        Html::VRef(node)   
+    };
+
+    // let memoised = use_memo(move |_|{
+    //     node
+    // }, ());
+
+    // (*memoised).clone()
+    node
+}
+
+pub struct Main {
+    node_ref: NodeRef,
+}
+
+impl Component for Main {
+    type Message = ();
+    type Properties = ();
+
+    fn create(_ctx: &Context<Self>) -> Self {
+        Self {
+            node_ref: NodeRef::default(),
+        }
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        html! {
+                <main>
+                
+                    <nav>
+                        <div class="nav-wrapper">
+                            <a href="#" class="brand-logo" onclick={Callback::from(|_| {
+                                open_side_nav_bar();
+                            })}><i class="material-icons">{"menu"}</i></a>
+                            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                                <li><a href="#" onclick={Callback::from(|_| {
+                                fetch_feature();
+                            })}>{"Add Point"}</a></li>
+                                <li><a href="badges.html">{"Components"}</a></li>
+                                <li><a href="collapsible.html">{"JavaScript"}</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+
+                    <ul id="slide-out" class="sidenav">
+                        <li><div class="user-view">
+                        <div class="background">
+                            <img src="images/office.jpg"/>
+                        </div>
+                        // <a href="#user"><img class="circle" src="images/yuna.jpg"></a>
+                        <a href="#name"><span class="white-text name">{"John Doe"}</span></a>
+                        <a href="#email"><span class="white-text email">{"jdandturk@gmail.com"}</span></a>
+                        </div></li>
+                        <li><a href="#!"><i class="material-icons">{"cloud"}</i>{"First Link With Icon"}</a></li>
+                        <li><a href="#!">{"Second Link"}</a></li>
+                        <li><div class="divider"></div></li>
+                        <li><a class="subheader">{"Subheader"}</a></li>
+                        <li><a class="waves-effect" href="#!">{"Third Link With Waves"}</a></li>
+                    </ul>
+                    // <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">{"menu"}</i></a>  
+
+                    <div id="map" style="width: 100%; height: 100vh;"></div>  
+                </main>
+            }
+    }
+
+    fn rendered(&mut self, _ctx: &Context<Self>, first_render: bool) {
+        if first_render {
+            init_all_ui();
+            load_map();
+        }
+    }
+}
+
 
 #[function_component(App)]
 pub fn app() -> Html {
 
-    html! {
-        <main onclick={Callback::from(|_| {
-                execute_load_map()
-            })}>
-            <div id="map" style="width: 100%; height: 100vh;"></div>
-        </main>
+    html!{
+        <Main/>
     }
+    
 }

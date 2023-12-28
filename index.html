@@ -4,40 +4,98 @@
     <meta charset="utf-8" />
     <title>Trunk Template</title>
 
+    <link data-trunk rel="copy-file" href="static/imgs/circle.png"/>
     <link data-trunk rel="sass" href="static/css/maplibre-gl.css" />
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
 
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
     <script>
+
       var map = {}
+
+
       function load_map() {
         map = new maplibregl.Map({
             container: 'map', // container id
             style: 'https://demotiles.maplibre.org/style.json', // style URL
             center: [0, 0], // starting position [lng, lat]
             zoom: 1 // starting zoom
-        });      
-      }
-
-      function add_feature(feature_json) {
-        map.addSource('maine', {
-            'type': 'geojson',
-            'data': JSON.parse(feature_json)
         });
 
-        map.addLayer({
-            'id': 'maine',
-            'type': 'fill',
-            'source': 'maine',
-            'layout': {},
-            'paint': {
-                'fill-color': '#088',
-                'fill-opacity': 0.8
-            }
-        });
-
+        map.on('load', () => {
+          map.loadImage('circle.png', (error, image) => {
+                if (error) throw error;
+                map.addImage('circle', image);
+            } )         
+        })
       }
+
+      function add_source(name, type, collection) {
+        console.log(collection);
+        map.addSource(name, 
+        {
+            'type': type,
+            'data': collection.features[0]
+        });        
+      }
+
+      function add_layer(layer) {
+        map.addLayer(JSON.parse(layer));           
+      }
+
+      function open_side_nav_bar() {
+        var elem = document.querySelector('.sidenav');
+        var instance = M.Sidenav.getInstance(elem);
+        instance.open();
+      }
+
+      function init_all_ui() {
+        M.AutoInit();
+      }  
+
+      // function add_feature(collection) {
+
+      //   //let json = JSON.stringify(collection.features[0]);
+      //   console.log(collection.features[0]);
+
+      //   map.addSource('point', {
+      //       'type': 'geojson',
+      //       'data': collection.features[0]
+      //   });
+
+      //   map.addLayer({
+      //               'id': 'points',
+      //               'type': 'symbol',
+      //               'source': 'point',
+      //               'layout': {
+      //                   'icon-image': 'circle',
+      //                   'icon-size': 0.25
+      //               }
+      //           });        
+      //   // map.addLayer({
+      //   //     'id': 'maine',
+      //   //     'type': 'fill',
+      //   //     'source': 'maine',
+      //   //     'layout': {
+      //   //       'icon-image': 'cat',
+      //   //        'icon-size': 0.25              
+      //   //     },
+      //   //     'paint': {
+      //   //         'fill-color': '#088',
+      //   //         'fill-opacity': 0.8
+      //   //     }
+      //   //   });        
+      // }
     </script>
   </head>
 
-  <body onload="load_map();"></body>
+  <body ></body>
 </html>
