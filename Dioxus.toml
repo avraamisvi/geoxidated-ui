@@ -1,0 +1,56 @@
+[application]
+
+# App name
+name = "geoxidated"
+
+# The Dioxus platform to default to
+default_platform = "web"
+
+# `build` & `serve` output path
+out_dir = "dist"
+
+# The static resource path
+asset_dir = "static"
+
+[web.app]
+
+# HTML title tag content
+title = "geoexidated"
+
+[web.watcher]
+
+# When watcher is triggered, regenerate the `index.html`
+reload_html = true
+
+# Which files or dirs will be monitored
+watch_path = ["src", "static"]
+
+# Include style or script assets
+[web.resource]
+
+# CSS style file
+style = [
+    "./css/maplibre-gl.css",
+    "https://fonts.googleapis.com/icon?family=Material+Icons",
+    "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+]
+
+# Javascript code file
+script = [
+    "./js/maplibre-gl.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js",
+    "./js/map.js"
+]
+
+[web.resource.dev]
+
+# Same as [web.resource], but for development servers
+
+# CSS style file
+# style = []
+
+# JavaScript files
+# script = []
+
+# [[web.proxy]]
+# backend = "http://localhost:8000/api/"
