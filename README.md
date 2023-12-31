@@ -1,4 +1,4 @@
-# Geoexidated POC
+# Geoxidated UI POC
 
 POC for an application using webassembly (Enabled by Yew and Trunk) and Rust.
 This project is for now an exploration, it is not intended for production, at least not yet.
