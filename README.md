@@ -1,6 +1,7 @@
-# Yew Trunk Template
+# Geoexidated POC
 
-This is a fairly minimal template for a Yew app that's built with [Trunk].
+POC for an application using webassembly (Enabled by Yew and Trunk) and Rust.
+This project is for now an exploration, it is not intended for production, at least not yet.
 
 ## Usage
 

@@ -83,10 +83,11 @@ use super::map::{add_source, add_layer};
                      Ok(json_promise) => {
                          let json_result = JsFuture::from(json_promise).await;
                         //  let layer = JsValue::from(value);//TODO From Json
+                        
 
                          match json_result {
                              Ok(json) => {
-                                add_source(json);
+                                add_source("test".to_string(), json);
                                 add_layer(r#"
                                     {
                                         'id': 'points',

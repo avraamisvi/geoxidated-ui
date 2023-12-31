@@ -30,7 +30,7 @@ use yew::prelude::*;
 use web_sys::{Element, Node};
 use gloo::utils::document;
 
-use crate::app::{ui::open_side_nav_bar, client::fetch_feature};
+use crate::app::{ui::open_side_nav_bar, client::fetch_feature, map::editor_set_add_point_mode};
 
 use self::{_Props::children, ui::init_all_ui, map::load_map};
 
@@ -94,7 +94,7 @@ impl Component for Main {
                             })}><i class="material-icons">{"menu"}</i></a>
                             <ul id="nav-mobile" class="right hide-on-med-and-down">
                                 <li><a href="#" onclick={Callback::from(|_| {
-                                fetch_feature();
+                                editor_set_add_point_mode();
                             })}>{"Add Point"}</a></li>
                                 <li><a href="badges.html">{"Components"}</a></li>
                                 <li><a href="collapsible.html">{"JavaScript"}</a></li>
@@ -103,19 +103,27 @@ impl Component for Main {
                     </nav>
 
                     <ul id="slide-out" class="sidenav">
-                        <li><div class="user-view">
-                        <div class="background">
-                            <img src="images/office.jpg"/>
-                        </div>
-                        // <a href="#user"><img class="circle" src="images/yuna.jpg"></a>
-                        <a href="#name"><span class="white-text name">{"John Doe"}</span></a>
-                        <a href="#email"><span class="white-text email">{"jdandturk@gmail.com"}</span></a>
-                        </div></li>
-                        <li><a href="#!"><i class="material-icons">{"cloud"}</i>{"First Link With Icon"}</a></li>
-                        <li><a href="#!">{"Second Link"}</a></li>
-                        <li><div class="divider"></div></li>
-                        <li><a class="subheader">{"Subheader"}</a></li>
-                        <li><a class="waves-effect" href="#!">{"Third Link With Waves"}</a></li>
+                        <li>
+                            <div class="row">
+                                <form class="col s12">
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                        <textarea id="poi-properties" class="materialize-textarea"></textarea>
+                                        <label for="textarea1">{"Properties"}</label>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <button class="btn waves-effect waves-light" type="submit" name="action">
+                                    {"Submit"} <i class="material-icons right">{"send"}</i>
+                                </button>                                
+                            </div>
+                        </li>
+                        // <li><a href="#!"><i class="material-icons">{"cloud"}</i>{"First Link With Icon"}</a></li>
+                        // <li><a href="#!">{"Second Link"}</a></li>
+                        // <li><div class="divider"></div></li>
+                        // <li><a class="subheader">{"Subheader"}</a></li>
+                        // <li><a class="waves-effect" href="#!">{"Third Link With Waves"}</a></li>
                     </ul>
                     // <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">{"menu"}</i></a>  
 

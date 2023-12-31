@@ -32,9 +32,16 @@ use web_sys::{Request, RequestInit, RequestMode, Response};
 
 #[wasm_bindgen]
 extern "C" {
-    pub fn add_source(collection: JsValue);
+    pub fn add_source(name: String, collection: JsValue);
     pub fn add_layer(layer: JsValue);
+    pub fn editor_set_none_mode();
+    pub fn editor_set_add_point_mode();
     pub fn load_map();
+}
+
+#[wasm_bindgen]
+pub fn add_point(point: JsValue) {
+
 }
 
 // pub fn execute_load_map() {

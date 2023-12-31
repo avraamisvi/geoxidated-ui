@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <title>Trunk Template</title>
 
+    <link data-trunk rel="copy-file" href="static/imgs/pin.png"/>
     <link data-trunk rel="copy-file" href="static/imgs/circle.png"/>
     <link data-trunk rel="sass" href="static/css/maplibre-gl.css" />
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
@@ -17,10 +18,38 @@
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
+    <style>
+      .marker {
+          display: block;
+          border: none;
+          /* border-radius: 50%; */
+          cursor: pointer;
+          padding: 0;
+      }
+    </style>
+
     <script>
 
-      var map = {}
+      var editor_modes = {
+        ADD_POINT: 1,
+        ADD_POLYGON: 2,
+        ADD_CIRCLE: 3,
+        NONE: 0
+      }
 
+      var editor_status = {
+        mode: editor_modes.NONE
+      }
+
+      function editor_set_add_point_mode() {
+        editor_status.mode = editor_modes.ADD_POINT;
+      }
+
+      function editor_set_none_mode() {
+        editor_status.mode = editor_modes.NONE;
+      }
+  
+      var map = {}
 
       function load_map() {
         map = new maplibregl.Map({
@@ -31,11 +60,106 @@
         });
 
         map.on('load', () => {
+
+          const canvas = map.getCanvasContainer();
+
           map.loadImage('circle.png', (error, image) => {
                 if (error) throw error;
                 map.addImage('circle', image);
-            } )         
-        })
+            } )      
+            
+            map.loadImage('pin.png', (error, image) => {
+                if (error) throw error;
+                map.addImage('pin', image);
+            } )    
+
+            //testing ideas
+            map.addSource('points', {
+                'type': 'geojson',
+                'data': null
+            });
+
+            map.addLayer({
+                    'id': 'points',
+                    'type': 'symbol',
+                    'source': 'points',
+                    // 'paint': {
+                    //     'circle-radius': 10,
+                    //     'circle-color': '#3887be'
+                    // }
+                    'layout': {
+                        'icon-image': 'pin',
+                        'icon-size': 0.7
+                    }
+                });
+
+                map.on('click', 'points', (event) => {
+
+                  if(editor_status.mode == editor_modes.ADD_POINT) {
+                    add_point(event);
+                  }
+
+                  console.log(`map click:`);
+                  console.log(event.features);
+
+                  editor_set_none_mode();
+                });
+
+                map.on('click', (event) => {
+
+                  if(editor_status.mode == editor_modes.ADD_POINT) {
+                    add_point(event);
+                  }
+
+                  editor_set_none_mode();
+                });
+
+                map.on('mouseenter', 'points', () => {            
+                  canvas.style.cursor = 'move';
+                });
+
+                map.on('mouseleave', 'points', () => {
+                  canvas.style.cursor = '';
+                });   
+
+        })//end onload 
+
+      }//end load map
+
+      function add_point(event) {
+
+        if(event.features && event.features.length > 0) {
+            console.log("Show features attr")
+          } else {
+
+            let points_source = map.getSource('points');
+
+            points_source.setData({
+              "type": "Feature",
+              "geometry": {
+                "type": "Point",
+                "coordinates": [event.lngLat.lng, event.lngLat.lat]
+              }
+            })
+
+            // const el = document.createElement('img');
+            // el.className = 'marker';
+            // // el.style.backgroundImage = "url('pin.png')";
+            // el.src = 'pin.png';
+            // el.style.width = `33px`;
+            // el.style.height = `48px`;
+
+            // el.addEventListener('click', () => {
+            //   window.alert(marker.properties.message);
+            // });
+
+            // let marker = new maplibregl.Marker({element: el}).setLngLat(event.lngLat)
+            // .addTo(map);   
+            
+            // marker.on('click', ()=> {
+            //   console.log("test");
+            // })
+          }        
       }
 
       function add_source(name, type, collection) {
