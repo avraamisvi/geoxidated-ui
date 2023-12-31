@@ -3,6 +3,9 @@
 POC for an application using webassembly (Enabled by Yew and Trunk) and Rust.
 This project is for now an exploration, it is not intended for production, at least not yet.
 
+The editor will allow the creation of points, polygons and circles.
+There is also an backend implementation: https://github.com/avraamisvi/geoxidated
+
 ## Usage
 
 For a more thorough explanation of Trunk and its features, please head over to the [repository][trunk].
