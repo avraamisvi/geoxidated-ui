@@ -31,6 +31,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use web_sys::{RequestInit, RequestMode, Request, Response, Headers};
+use wasm_bindgen_futures::{JsFuture, spawn_local};
 
 fn main() {
     // launch the web app
@@ -187,10 +189,53 @@ fn App(cx: Scope) -> Element {
     })
 }
 
-async fn save_feature(value: &Value) -> Result<reqwest::Response, reqwest::Error> {
-    let client = reqwest::Client::new();
-    client.post("http://localhost:8000/collections/1/item")
-        .body(value.to_string())
-        .send()
-        .await
+async fn save_feature(value: &Value) {
+
+    let mut opts = RequestInit::new();
+    opts.method("POST");
+    opts.mode(RequestMode::Cors);
+
+    // let headers = Headers::new().unwrap();
+
+    /*let appended_res = headers.append("Content-Type", "application/json");
+
+    if(appended_res.is_err()) {
+        log::error!("{appended_res:?}");
+    }
+
+    opts.headers(&headers);*/
+
+    let request = Request::new_with_str_and_init("http://127.0.0.1:8000/collections/1/item", &opts).unwrap();
+
+    request.headers()
+    .set("Accept", "application/json")
+    .unwrap();
+
+    request.headers()
+    .append("Content-Type", "application/json")
+    .unwrap();
+
+    let window = web_sys::window().unwrap(); 
+    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await;
+
+    match resp_value {
+        Ok(js_value) => {
+            let response = Response::from(js_value);
+            let json_promise = response.json().unwrap();
+
+            let json_result = JsFuture::from(json_promise).await;
+
+            match json_result {
+                Ok(json) => {
+                    log::debug!("{json:?}");
+                },
+                Err(err) => {
+                    log::error!("{err:?}");
+                }
+            }
+        },
+        Err(err) => {
+            log::error!("{err:?}");
+        }
+    };
 }
