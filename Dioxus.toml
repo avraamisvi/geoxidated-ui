@@ -31,14 +31,14 @@ watch_path = ["src", "static"]
 # CSS style file
 style = [
     "./css/maplibre-gl.css",
-    "https://fonts.googleapis.com/icon?family=Material+Icons",
-    "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    "./css/icon.css",
+    "./css/materialize.min.css"
 ]
 
 # Javascript code file
 script = [
     "./js/maplibre-gl.js",
-    "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js",
+    "./js/materialize.min.js",
     "./js/map.js"
 ]
 

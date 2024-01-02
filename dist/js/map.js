@@ -129,13 +129,17 @@ function add_point(event) {
 
         let points_source = map.getSource('points');
 
+        set_value_selected_feature({lng: event.lngLat.lng, lat: event.lngLat.lat}, "");
+
         points_source.setData({
           "type": "Feature",
           "geometry": {
             "type": "Point",
             "coordinates": [event.lngLat.lng, event.lngLat.lat]
           }
-        })
+        });
+
+        open_properties_panel();
       }        
   }
 
@@ -150,4 +154,30 @@ function add_point(event) {
 
   function add_layer(layer) {
     map.addLayer(JSON.parse(layer));           
+  }
+
+  function set_value_selected_feature(coordinates, properties) {
+    const poi_lng = document.querySelector('#poi-lng');
+    const poi_lat = document.querySelector('#poi-lat');
+    const poi_properties = document.querySelector('#poi-properties');
+
+    poi_lng.value = coordinates.lng;
+    poi_lat.value = coordinates.lat;
+    poi_properties.value = properties;
+  }
+
+  function get_feature_data() {
+    const poi_lng = document.querySelector('#poi-lng');
+    const poi_lat = document.querySelector('#poi-lat');
+
+    var data = JSON.stringify({
+      lat: poi_lat.value,
+      lng: poi_lng.value
+    });
+  }
+
+  function open_properties_panel() {
+      var elem = document.querySelector('.sidenav');
+      var instance = M.Sidenav.getInstance(elem);
+      instance.open();
   }

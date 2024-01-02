@@ -29,9 +29,12 @@
 
 // import the prelude to get access to the `rsx!` macro and the `Scope` and `Element` types
 use dioxus::prelude::*;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 fn main() {
     // launch the web app
+    wasm_logger::init(wasm_logger::Config::default());
     dioxus_web::launch(App);
 }
 
@@ -39,6 +42,7 @@ fn main() {
 fn App(cx: Scope) -> Element {
 
     let create_eval = use_eval(cx);
+    let poi_properties = use_state(cx, || String::from(""));
 
     cx.render(rsx! {
         div {
@@ -47,7 +51,6 @@ fn App(cx: Scope) -> Element {
                     r#"
                     load_map();
                     M.AutoInit();
-                    console.log("loaded with dioxus");
                     "#,
                 ).unwrap();
 
@@ -116,20 +119,60 @@ fn App(cx: Scope) -> Element {
                 li {
                     div { class: "row",
                         form { class: "col s12",
-                            input { name: "lng", r#type: "hidden", value: "", id: "poi-lng" }
-                            input { value: "", name: "lat", r#type: "hidden", id: "poi-lat" }
+                            
                             div { class: "row",
                                 div { class: "input-field col s12",
-                                    textarea { class: "materialize-textarea", id: "poi-properties" }
-                                    label { r#for: "textarea1", "Properties" }
+                                    label { r#for: "poi-lng", "Longitude"}
+                                    input {name: "lng",  value: "", id: "poi-lng", readonly: true}
+                                }
+                            }
+                            div { class: "row",
+                                div { class: "input-field col s12",
+                                    label { r#for: "poi-lat", "Latitude" }
+                                    input { value: "", name: "lat", readonly: true, id: "poi-lat" }
+                                }
+                            }                            
+                            div { class: "row",
+                                div { class: "input-field col s12",
+                                    textarea { onchange: |evt| {
+                                        poi_properties.set(evt.value.clone());
+                                    },
+                                    class: "materialize-textarea", id: "poi-properties" }
+                                    label { r#for: "poi-properties", "Properties" }
                                 }
                             }
                         }
                         button {
+                            onclick: move |_| {
+                                    let eval = create_eval(
+                                        r#"
+                                            var poi_lng = document.querySelector('#poi-lng');
+                                            var poi_lat = document.querySelector('#poi-lat');
+                                            var poi_properties = document.querySelector('#poi-properties');
+
+                                            dioxus.send({
+                                                lat: parseFloat(poi_lat.value),
+                                                lng: parseFloat(poi_lng.value),
+                                                properties: JSON.parse(poi_properties.value) 
+                                            });
+                                        "#,
+                                    ).unwrap();
+
+                                    let value = futures::executor::block_on(async {
+                                        eval.recv().await.unwrap() 
+                                    });
+
+                                    cx.spawn(async move {
+                                        let result = save_feature(&value).await;
+                                        log::debug!("{:?}", result);
+                                    });
+
+
+                            },
                             name: "action",
-                            r#type: "submit",
+                            r#type: "button",
                             class: "btn waves-effect waves-light",
-                            "Submit "
+                            "Save "
                             i { class: "material-icons right", "send" }
                         }
                     }
@@ -142,4 +185,12 @@ fn App(cx: Scope) -> Element {
             }
         }
     })
+}
+
+async fn save_feature(value: &Value) -> Result<reqwest::Response, reqwest::Error> {
+    let client = reqwest::Client::new();
+    client.post("http://localhost:8000/collections/1/item")
+        .body(value.to_string())
+        .send()
+        .await
 }
