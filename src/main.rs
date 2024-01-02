@@ -31,7 +31,7 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use web_sys::{RequestInit, RequestMode, Request, Response, Headers};
+use web_sys::{RequestInit, RequestMode, Request, Response, Headers, wasm_bindgen::JsValue};
 use wasm_bindgen_futures::{JsFuture, spawn_local};
 
 fn main() {
@@ -191,30 +191,37 @@ fn App(cx: Scope) -> Element {
 
 async fn save_feature(value: &Value) {
 
+    let content = JsValue::from(r#"
+            {
+                "type": "Feature",
+                "geometry": {
+                "type": "point",
+                "coordinates": [
+                    -38.520302,
+                    -12.999122
+                ]
+                },
+                "properties": {
+                "some": "ABACATE"
+                }
+            }    
+    "#);
+
+    // let headers = JsValue::from("Content-Type: application/json");
+
+    let headers = Headers::new().unwrap();
+    // headers.set("Accept", "application/json").unwrap();
+    // headers.set("Authorization", &bearer).unwrap();
+    headers.set("Content-Type", "application/json").unwrap();
+
     let mut opts = RequestInit::new();
     opts.method("POST");
     opts.mode(RequestMode::Cors);
+    opts.body(Some(&content));
+    opts.headers(&headers);
 
-    // let headers = Headers::new().unwrap();
-
-    /*let appended_res = headers.append("Content-Type", "application/json");
-
-    if(appended_res.is_err()) {
-        log::error!("{appended_res:?}");
-    }
-
-    opts.headers(&headers);*/
 
     let request = Request::new_with_str_and_init("http://127.0.0.1:8000/collections/1/item", &opts).unwrap();
-
-    request.headers()
-    .set("Accept", "application/json")
-    .unwrap();
-
-    request.headers()
-    .append("Content-Type", "application/json")
-    .unwrap();
-
     let window = web_sys::window().unwrap(); 
     let resp_value = JsFuture::from(window.fetch_with_request(&request)).await;
 
