@@ -160,15 +160,13 @@ fn App(cx: Scope) -> Element {
                                         "#,
                                     ).unwrap();
 
-                                    let value = futures::executor::block_on(async {
-                                        eval.recv().await.unwrap() 
-                                    });
-
                                     cx.spawn(async move {
+
+                                        let value = eval.recv().await.unwrap();
+
                                         let result = save_feature(&value).await;
                                         log::debug!("{:?}", result);
                                     });
-
 
                             },
                             name: "action",
@@ -191,21 +189,7 @@ fn App(cx: Scope) -> Element {
 
 async fn save_feature(value: &Value) {
 
-    let content = JsValue::from(r#"
-            {
-                "type": "Feature",
-                "geometry": {
-                "type": "point",
-                "coordinates": [
-                    -38.520302,
-                    -12.999122
-                ]
-                },
-                "properties": {
-                "some": "ABACATE"
-                }
-            }    
-    "#);
+    let content = JsValue::from(value.into_json());
 
     // let headers = JsValue::from("Content-Type: application/json");
 
@@ -245,4 +229,28 @@ async fn save_feature(value: &Value) {
             log::error!("{err:?}");
         }
     };
+}
+
+trait IntoFeatureJson {
+    fn into_json(&self) -> String;
+}
+
+impl IntoFeatureJson for Value {
+    fn into_json(&self) -> String {
+
+        let lat = self["lat"].as_f64().unwrap();
+        let lng = self["lng"].as_f64().unwrap();
+        let properties = &self["properties"];
+
+        format!(r#"
+            {{
+                "type": "Feature",
+                "geometry": {{
+                    "type": "point",
+                    "coordinates": [{lat},{lng}]
+                }},
+                "properties": {properties}
+            }}    
+        "#)
+    }
 }
